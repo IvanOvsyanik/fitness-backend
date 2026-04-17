@@ -1,0 +1,22 @@
+[
+  {"id": "s1", "name": "Наклоны к стопам сидя", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Задняя поверхность бедра", "exercise_type": "изолирующее"},
+  {"id": "s2", "name": "Поза собаки мордой вниз", "equipment": "свой вес", "min_level": "средний", "muscle_group": "Все тело", "exercise_type": "базовое"},
+  {"id": "s3", "name": "Растяжка кобра (прогиб в спине)", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Пресс, Спина", "exercise_type": "изолирующее"},
+  {"id": "s4", "name": "Растяжка грудных мышц у стены", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Грудь", "exercise_type": "изолирующее"},
+  {"id": "s5", "name": "Поза ребенка (отдых)", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Спина", "exercise_type": "изолирующее"},
+  {"id": "s6", "name": "Растяжка квадрицепса стоя", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Ноги", "exercise_type": "изолирующее"},
+  {"id": "s7", "name": "Глубокий выпад (растяжка подвздошной)", "equipment": "свой вес", "min_level": "средний", "muscle_group": "Таз", "exercise_type": "базовое"},
+  {"id": "s8", "name": "Растяжка плеч с полотенцем (или резинкой)", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Плечи", "exercise_type": "изолирующее"},
+  {"id": "s9", "name": "Поза голубя (растяжка ягодиц)", "equipment": "свой вес", "min_level": "средний", "muscle_group": "Ягодицы", "exercise_type": "изолирующее"},
+  {"id": "s10", "name": "Бабочка (растяжка приводящих)", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Ноги", "exercise_type": "изолирующее"},
+  {"id": "s11", "name": "Наклоны в стороны", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Косые мышцы", "exercise_type": "изолирующее"},
+  {"id": "s12", "name": "Растяжка трицепса за головой", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Трицепс", "exercise_type": "изолирующее"},
+  {"id": "s13", "name": "Растяжка предплечий", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Руки", "exercise_type": "изолирующее"},
+  {"id": "s14", "name": "Скручивания позвоночника лежа", "equipment": "свой вес", "min_level": "средний", "muscle_group": "Спина", "exercise_type": "изолирующее"},
+  {"id": "s15", "name": "Растяжка на турнике (пассивный вис)", "equipment": "гантели и турник", "min_level": "новичок", "muscle_group": "Позвоночник, Хват", "exercise_type": "базовое"},
+  {"id": "s16", "name": "Растяжка спины в блочном тренажере", "equipment": "спортзал", "min_level": "новичок", "muscle_group": "Спина", "exercise_type": "изолирующее"},
+  {"id": "s17", "name": "Шпагат (попытка/подготовка)", "equipment": "свой вес", "min_level": "профи", "muscle_group": "Ноги", "exercise_type": "базовое"},
+  {"id": "s18", "name": "Растяжка икр у опоры", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Голень", "exercise_type": "изолирующее"},
+  {"id": "s19", "name": "Динамическая разминка суставов", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Весь корпус", "exercise_type": "базовое"},
+  {"id": "s20", "name": "Растяжка шеи", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Шея", "exercise_type": "изолирующее"}
+]

@@ -6,17 +6,13 @@ class Workout(Base):
     __tablename__ = "workouts"
 
     id = Column(Integer, primary_key=True, index=True)
-    
-    # Входные параметры
-    goal = Column(String, index=True)
+    goal = Column(String)
     level = Column(String)
     equipment = Column(String)
+    generated_plan = Column(Text) # Здесь хранится итоговый JSON тренировки
+    feedback = Column(Text, nullable=True) # Текст отзыва после
     
-    # Результат от ИИ
-    generated_plan = Column(Text)
+    split_day = Column(Integer, default=1)
+    banned_exercises = Column(Text, default="") # Долгосрочный черный список
     
-    # Обратная связь (оценка). Изначально пустая, заполнится после тренировки
-    feedback = Column(Text, nullable=True) 
-    
-    # Время создания записи
     created_at = Column(DateTime, default=datetime.datetime.utcnow)

@@ -1,38 +1,50 @@
 from openai import AsyncOpenAI
+import json
 from app.core.config import settings
 
-# Подключаем стандартную библиотеку, но направляем её на сверхбыстрые серверы Groq
 client = AsyncOpenAI(
     api_key=settings.GROQ_API_KEY,
     base_url="https://api.groq.com/openai/v1",
 )
 
-async def generate_workout(goal: str, level: str, equipment: str, previous_feedback: str = None):
-    system_prompt = """Ты — экспертный фитнес-тренер. 
-    Твоя задача — составлять тренировочные планы. 
-    Выдавай ответ строго в виде списка упражнений с указанием подходов и повторений. 
-    Без лишней воды и длинных вступлений."""
+# 1. Анализирует текст (и перед, и после тренировки)
+async def extract_entities(text: str, mode: str = "pre_workout"):
+    if not text or len(text) < 3:
+        return {"banned": [], "unbanned": [], "temp_injuries": []}
 
-    if previous_feedback:
-        user_prompt = f"""Клиент оставил отзыв о прошлой тренировке: '{previous_feedback}'. 
-        Цель клиента: {goal}. Инвентарь: {equipment}.
-        Адаптируй прошлый план: усложни или упрости его на основе отзыва."""
+    if mode == "pre_workout":
+        system_prompt = """Проанализируй жалобы пользователя перед тренировкой. 
+        Извлеки части тела или суставы, которые болят сегодня.
+        Верни JSON: {"temp_injuries": ["спина", "колено"]}"""
     else:
-        user_prompt = f"""Составь план первой тренировки. 
-        Цель: {goal}. 
-        Уровень подготовки: {level}. 
-        Доступный инвентарь: {equipment}."""
+        system_prompt = """Проанализируй отзыв после тренировки. 
+        Извлеки названия упражнений, которые нужно навсегда убрать (banned) 
+        или которые нужно вернуть из черного списка (unbanned).
+        Верни JSON: {"banned": ["жим лежа"], "unbanned": ["планка"]}"""
 
     try:
         response = await client.chat.completions.create(
-            model="llama-3.1-8b-instant", # Используем мгновенную Llama 3.1
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            max_tokens=1000,
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text}],
+            response_format={"type": "json_object"},
+            temperature=0.1
+        )
+        return json.loads(response.choices[0].message.content)
+    except:
+        return {"banned": [], "unbanned": [], "temp_injuries": []}
+
+# 2. Пишет приветствие
+async def generate_coach_note(goal: str, pre_text: str, temp_injuries: list):
+    system_prompt = f"""Ты — заботливый тренер. Напиши ОДНО приветственное предложение.
+    Сегодня цель: {goal}. У пользователя болит: {', '.join(temp_injuries) if temp_injuries else 'ничего'}.
+    Если что-то болит, скажи, что ты адаптировал план. Если нет — просто пожелай удачи."""
+    
+    try:
+        response = await client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "system", "content": system_prompt}],
             temperature=0.7
         )
         return response.choices[0].message.content
-    except Exception as e:
-        return f"Ошибка при генерации тренировки: {str(e)}"
+    except:
+        return "План готов, приступай к тренировке!"
