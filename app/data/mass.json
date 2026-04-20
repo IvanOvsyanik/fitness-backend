@@ -1,20 +1,51 @@
 [
   {"id": "m1", "name": "Отжимания от пола", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Грудь, Трицепс", "split_day": 1},
-  {"id": "m2", "name": "Подтягивания прямым хватом", "equipment": "гантели и турник", "min_level": "средний", "muscle_group": "Спина, Бицепс", "split_day": 2},
-  {"id": "m3", "name": "Австралийские подтягивания", "equipment": "гантели и турник", "min_level": "новичок", "muscle_group": "Спина", "split_day": 2},
-  {"id": "m4", "name": "Приседания со штангой", "equipment": "спортзал", "min_level": "средний", "muscle_group": "Ноги", "split_day": 3},
-  {"id": "m5", "name": "Классический жим штанги лежа", "equipment": "спортзал", "min_level": "новичок", "muscle_group": "Грудь", "split_day": 1},
-  {"id": "m6", "name": "Жим гантелей лежа", "equipment": "гантели и турник", "min_level": "новичок", "muscle_group": "Грудь", "split_day": 1},
-  {"id": "m7", "name": "Выпады с гантелями", "equipment": "гантели и турник", "min_level": "новичок", "muscle_group": "Ноги", "split_day": 3},
-  {"id": "m8", "name": "Болгарские сплит-приседания", "equipment": "гантели и турник", "min_level": "профи", "muscle_group": "Ноги", "split_day": 3},
-  {"id": "m9", "name": "Становая тяга", "equipment": "спортзал", "min_level": "профи", "muscle_group": "Спина, Ноги", "split_day": 2},
-  {"id": "m10", "name": "Тяга гантели в наклоне", "equipment": "гантели и турник", "min_level": "новичок", "muscle_group": "Спина", "split_day": 2},
-  {"id": "m11", "name": "Жим гантелей сидя", "equipment": "гантели и турник", "min_level": "средний", "muscle_group": "Плечи", "split_day": 1},
-  {"id": "m12", "name": "Махи гантелями в стороны", "equipment": "гантели и турник", "min_level": "новичок", "muscle_group": "Плечи", "split_day": 1},
-  {"id": "m13", "name": "Подъем гантелей на бицепс", "equipment": "гантели и турник", "min_level": "новичок", "muscle_group": "Бицепс", "split_day": 2},
-  {"id": "m14", "name": "Французский жим с гантелей", "equipment": "гантели и турник", "min_level": "средний", "muscle_group": "Трицепс", "split_day": 1},
-  {"id": "m15", "name": "Сгибание ног в тренажере", "equipment": "спортзал", "min_level": "новичок", "muscle_group": "Ноги", "split_day": 3},
-  {"id": "m16", "name": "Скручивания на пресс", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Пресс", "split_day": 0},
-  {"id": "m17", "name": "Подъем ног в висе", "equipment": "гантели и турник", "min_level": "профи", "muscle_group": "Пресс", "split_day": 0},
-  {"id": "m18", "name": "Планка", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Кор", "split_day": 0}
+  {"id": "m2", "name": "Отжимания с колен", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Грудь", "split_day": 1},
+  {"id": "m3", "name": "Обратные отжимания от стула", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Трицепс", "split_day": 1},
+  {"id": "m4", "name": "Отжимания узким хватом", "equipment": "свой вес", "min_level": "средний", "muscle_group": "Трицепс, Грудь", "split_day": 1},
+  
+  {"id": "m5", "name": "Жим гантелей лежа", "equipment": "гантели и турник", "min_level": "новичок", "muscle_group": "Грудь", "split_day": 1},
+  {"id": "m6", "name": "Разведение гантелей лежа", "equipment": "гантели и турник", "min_level": "новичок", "muscle_group": "Грудь", "split_day": 1},
+  {"id": "m7", "name": "Жим гантелей сидя", "equipment": "гантели и турник", "min_level": "новичок", "muscle_group": "Плечи", "split_day": 1},
+  {"id": "m8", "name": "Французский жим с гантелей", "equipment": "гантели и турник", "min_level": "средний", "muscle_group": "Трицепс", "split_day": 1},
+  
+  {"id": "m9", "name": "Классический жим штанги лежа", "equipment": "спортзал", "min_level": "новичок", "muscle_group": "Грудь", "split_day": 1},
+  {"id": "m10", "name": "Сведение рук в кроссовере", "equipment": "спортзал", "min_level": "средний", "muscle_group": "Грудь", "split_day": 1},
+  {"id": "m11", "name": "Жим штанги сидя", "equipment": "спортзал", "min_level": "средний", "muscle_group": "Плечи", "split_day": 1},
+  {"id": "m12", "name": "Разгибание рук на блоке", "equipment": "спортзал", "min_level": "новичок", "muscle_group": "Трицепс", "split_day": 1},
+
+  {"id": "m13", "name": "Супермен (поднятие рук и ног лежа)", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Спина", "split_day": 2},
+  {"id": "m14", "name": "Лодочка (статика)", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Спина", "split_day": 2},
+  {"id": "m15", "name": "Сведение лопаток лежа на животе", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Спина", "split_day": 2},
+  {"id": "m16", "name": "Скольжение по полу руками (имитация подтягиваний)", "equipment": "свой вес", "min_level": "средний", "muscle_group": "Спина, Бицепс", "split_day": 2},
+  
+  {"id": "m17", "name": "Подтягивания прямым хватом", "equipment": "гантели и турник", "min_level": "средний", "muscle_group": "Спина, Бицепс", "split_day": 2},
+  {"id": "m18", "name": "Австралийские подтягивания", "equipment": "гантели и турник", "min_level": "новичок", "muscle_group": "Спина", "split_day": 2},
+  {"id": "m19", "name": "Тяга гантели в наклоне", "equipment": "гантели и турник", "min_level": "новичок", "muscle_group": "Спина", "split_day": 2},
+  {"id": "m20", "name": "Подъем гантелей на бицепс", "equipment": "гантели и турник", "min_level": "новичок", "muscle_group": "Бицепс", "split_day": 2},
+  
+  {"id": "m21", "name": "Тяга верхнего блока", "equipment": "спортзал", "min_level": "новичок", "muscle_group": "Спина", "split_day": 2},
+  {"id": "m22", "name": "Тяга нижнего блока к поясу", "equipment": "спортзал", "min_level": "новичок", "muscle_group": "Спина", "split_day": 2},
+  {"id": "m23", "name": "Подтягивания в гравитроне", "equipment": "спортзал", "min_level": "новичок", "muscle_group": "Спина", "split_day": 2},
+  {"id": "m24", "name": "Сгибание рук на скамье Скотта", "equipment": "спортзал", "min_level": "средний", "muscle_group": "Бицепс", "split_day": 2},
+
+  {"id": "m25", "name": "Классические приседания", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Ноги", "split_day": 3},
+  {"id": "m26", "name": "Выпады назад", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Ноги", "split_day": 3},
+  {"id": "m27", "name": "Ягодичный мостик", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Ягодицы, Ноги", "split_day": 3},
+  {"id": "m28", "name": "Стульчик у стены", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Ноги", "split_day": 3},
+  
+  {"id": "m29", "name": "Кубковые приседания с гантелей", "equipment": "гантели и турник", "min_level": "новичок", "muscle_group": "Ноги", "split_day": 3},
+  {"id": "m30", "name": "Выпады с гантелями", "equipment": "гантели и турник", "min_level": "новичок", "muscle_group": "Ноги", "split_day": 3},
+  {"id": "m31", "name": "Румынская тяга с гантелями", "equipment": "гантели и турник", "min_level": "средний", "muscle_group": "Ноги, Ягодицы", "split_day": 3},
+  {"id": "m32", "name": "Болгарские сплит-приседания", "equipment": "гантели и турник", "min_level": "профи", "muscle_group": "Ноги", "split_day": 3},
+
+  {"id": "m33", "name": "Жим ногами в тренажере", "equipment": "спортзал", "min_level": "новичок", "muscle_group": "Ноги", "split_day": 3},
+  {"id": "m34", "name": "Сгибание ног в тренажере", "equipment": "спортзал", "min_level": "новичок", "muscle_group": "Ноги", "split_day": 3},
+  {"id": "m35", "name": "Разгибание ног в тренажере", "equipment": "спортзал", "min_level": "новичок", "muscle_group": "Ноги", "split_day": 3},
+  {"id": "m36", "name": "Приседания со штангой", "equipment": "спортзал", "min_level": "средний", "muscle_group": "Ноги", "split_day": 3},
+
+  {"id": "m37", "name": "Скручивания на пресс", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Пресс", "split_day": 0},
+  {"id": "m38", "name": "Планка", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Кор", "split_day": 0},
+  {"id": "m39", "name": "Подъем ног лежа", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Пресс", "split_day": 0},
+  {"id": "m40", "name": "Подъем ног в висе", "equipment": "гантели и турник", "min_level": "средний", "muscle_group": "Пресс", "split_day": 0}
 ]

@@ -78,9 +78,9 @@ async def feedback(wid: int, req: FeedbackRequest, db: Session = Depends(get_db)
         catalog=catalog_str
     )
     
+    # 1. ОБРАБОТКА БАНОВ
     current_bans = set([b.strip() for b in current_bans_str.split(",") if b.strip()])
     
-    # ОЧИЩАЕМ ОТ КАВЫЧЕК ПЕРЕД ДОБАВЛЕНИЕМ В БАЗУ
     for new_ban in analysis.get("banned", []):
         clean_ban = new_ban.strip(' "\'')
         if clean_ban:
@@ -97,6 +97,26 @@ async def feedback(wid: int, req: FeedbackRequest, db: Session = Depends(get_db)
     
     w.banned_exercises = ",".join(filter(None, current_bans))
     w.feedback = req.feedback_text
+    
+    # 2. ОБРАБОТКА СЛОЖНОСТИ (Auto-regulation)
+    level_change = analysis.get("level_change", "none")
+    current_level = w.level.lower()
+    new_level = current_level
+
+    if level_change == "up":
+        if "новичок" in current_level: new_level = "средний"
+        elif "средн" in current_level: new_level = "профи"
+    elif level_change == "down":
+        if "профи" in current_level: new_level = "средний"
+        elif "средн" in current_level: new_level = "новичок"
+        
+    # Сохраняем новый уровень в эту тренировку, чтобы история была актуальной
+    w.level = new_level
     db.commit()
     
-    return {"status": "success", "ai_analysis": analysis, "current_bans": w.banned_exercises}
+    return {
+        "status": "success", 
+        "ai_analysis": analysis, 
+        "current_bans": w.banned_exercises,
+        "recommended_level": new_level # Отдаем фронтенду, чтобы он знал новый уровень юзера
+    }

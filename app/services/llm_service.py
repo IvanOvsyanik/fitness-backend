@@ -9,7 +9,7 @@ client = AsyncOpenAI(
 
 async def extract_entities(text: str, mode: str = "pre_workout", existing_bans: str = "", catalog: str = ""):
     if not text or len(text) < 3:
-        return {"banned": [], "unbanned": [], "temp_injuries": []}
+        return {"banned": [], "unbanned": [], "temp_injuries": [], "level_change": "none"}
 
     if mode == "pre_workout":
         system_prompt = """Прочитай жалобу пользователя перед тренировкой.
@@ -27,8 +27,12 @@ async def extract_entities(text: str, mode: str = "pre_workout", existing_bans: 
         2. ЗАБЛОКИРОВАТЬ: Если юзер просит убрать/заблокировать упражнение или группу мышц (например "грудь"), найди их в каталоге и помести в "banned".
         3. РАЗБЛОКИРОВАТЬ: Если юзер просит вернуть/разблокировать упражнение или группу мышц, найди их в каталоге и помести в "unbanned".
         4. Оставляй "unbanned" пустым: [], если юзер ПРЯМО не просит что-то вернуть.
+        5. АНАЛИЗ СЛОЖНОСТИ (level_change):
+           - Если юзер пишет, что было слишком легко, он не устал или хочет больше нагрузки -> "up"
+           - Если юзер пишет, что было слишком тяжело, он умирает, не справляется -> "down"
+           - Если сложность нормальная или об этом не сказано -> "none"
         
-        Ответ строго JSON: {{"banned": ["Точное название без кавычек"], "unbanned": []}}"""
+        Ответ строго JSON: {{"banned": [], "unbanned": [], "level_change": "none"}}"""
 
     try:
         response = await client.chat.completions.create(
@@ -42,7 +46,7 @@ async def extract_entities(text: str, mode: str = "pre_workout", existing_bans: 
         )
         return json.loads(response.choices[0].message.content)
     except Exception:
-        return {"banned": [], "unbanned": [], "temp_injuries": []}
+        return {"banned": [], "unbanned": [], "temp_injuries": [], "level_change": "none"}
 
 async def generate_coach_note(goal: str, prompt_text: str, temp_injuries: list):
     system_prompt = f"""Ты — заботливый фитнес-тренер. Напиши клиенту 1-2 предложения.
