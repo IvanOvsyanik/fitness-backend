@@ -9,10 +9,10 @@ class Workout(Base):
     goal = Column(String)
     level = Column(String)
     equipment = Column(String)
-    generated_plan = Column(Text) # Здесь хранится итоговый JSON тренировки
-    feedback = Column(Text, nullable=True) # Текст отзыва после
+    generated_plan = Column(Text)
+    feedback = Column(Text, nullable=True)
     
     split_day = Column(Integer, default=1)
-    banned_exercises = Column(Text, default="") # Долгосрочный черный список
+    banned_exercises = Column(Text, default="")
     
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
