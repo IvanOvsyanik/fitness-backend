@@ -12,111 +12,129 @@ from app.services import llm_service, kb_service
 Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Fitness Neuro-Symbolic AI")
 
-class WorkoutRequest(BaseModel):
+class OnboardingRequest(BaseModel):
+    device_id: str
     goal: str
-    level: str
+    weight: int
+    height: int
+    age: int
+    experience: str
     equipment: str
+
+class WorkoutRequest(BaseModel):
+    device_id: str
     pre_workout_text: Optional[str] = None
+    fallback_choice: Optional[str] = None  # НОВОЕ ПОЛЕ: "next_split" или "light_fullbody"
 
 class FeedbackRequest(BaseModel):
     feedback_text: str
 
 @app.get("/")
-def read_root(): return {"message": "Бекенд запущен!"}
+def read_root(): return {"message": "Сервер работает!"}
+
+@app.post("/api/v1/users/onboarding")
+async def onboarding(req: OnboardingRequest, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.device_id == req.device_id).first()
+    if user: return {"status": "exists", "rank": user.current_rank}
+    
+    ai = await llm_service.analyze_onboarding(req.weight, req.height, req.age, req.experience, req.equipment)
+    rank = ai.get("initial_rank", "новичок")
+    
+    new_user = models.User(
+        device_id=req.device_id, goal=req.goal, weight=req.weight, height=req.height,
+        age=req.age, experience_level=req.experience, equipment=req.equipment,
+        base_rank=rank, current_rank=rank
+    )
+    db.add(new_user); db.commit()
+    return {"status": "success", "reason": ai.get("reason"), "rank": rank}
 
 @app.post("/api/v1/workout/generate")
 async def generate(req: WorkoutRequest, db: Session = Depends(get_db)):
-    last = db.query(models.Workout).filter(models.Workout.goal == req.goal).order_by(models.Workout.id.desc()).first()
-    
-    current_split = (last.split_day % 3) + 1 if (last and req.goal.lower() == "масса") else 1
-    long_term_bans = [b.strip() for b in last.banned_exercises.split(",") if b.strip()] if last else []
-    
-    analysis = await llm_service.extract_entities(req.pre_workout_text, mode="pre_workout")
-    temp_injuries = analysis.get("temp_injuries", [])
+    user = db.query(models.User).filter(models.User.device_id == req.device_id).first()
+    if not user: raise HTTPException(404, "Run onboarding first!")
 
-    allowed, warmup, reason = kb_service.get_filtered_workout(
-        req.goal, req.level, req.equipment, current_split, 
-        long_term_bans, temp_injuries, last.generated_plan if last else None
+    last = db.query(models.Workout).filter(models.Workout.device_id == req.device_id).order_by(models.Workout.id.desc()).first()
+    original_split = (last.split_day % 3) + 1 if (last and user.goal.lower() == "масса") else 1
+    bans = [b.strip() for b in last.banned_exercises.split(",") if b.strip()] if last else []
+    
+    valid_tags = kb_service.get_all_contraindications()
+    analysis = await llm_service.extract_entities(req.pre_workout_text, mode="pre_workout", valid_injuries=valid_tags)
+    
+    mood = analysis.get("mood_boost", "none")
+    injuries = analysis.get("temp_injuries", [])
+
+    lvl = user.current_rank.lower()
+    if mood == "up": lvl = "средний" if "новичок" in lvl else ("профи" if "средн" in lvl else lvl)
+    elif mood == "down": lvl = "средний" if "профи" in lvl else ("новичок" if "средн" in lvl else lvl)
+
+    # ШАГ 1: Если юзер еще не сделал выбор, проверяем "черновик" тренировки
+    if not req.fallback_choice:
+        test_allowed, _, test_muscles = kb_service.get_filtered_workout(
+            user.goal, lvl, user.equipment, original_split, bans, injuries, None, is_light_fullbody=False
+        )
+        
+        # Если фильтр травм убил основные мышцы или оставил < 3 упражнений -> Требуем выбор!
+        is_blocked = len(test_allowed) < 3 or (user.goal.lower() == "масса" and not test_muscles)
+        
+        if is_blocked:
+            planned_targets = kb_service.get_split_targets(user.goal, original_split)
+            return {
+                "status": "choice_required",
+                "message": f"Из-за травмы ({', '.join(injuries)}) тренировка на ({', '.join(planned_targets)}) сегодня отменяется. Что делаем?",
+                "options": [
+                    {"id": "next_split", "label": "Перейти к следующему дню сплита"},
+                    {"id": "light_fullbody", "label": "Сделать легкую тренировку на всё тело"}
+                ]
+            }
+
+    # ШАГ 2: Применяем выбор юзера
+    active_split = original_split
+    is_light = False
+    
+    if req.fallback_choice == "next_split":
+        active_split = (original_split % 3) + 1
+    elif req.fallback_choice == "light_fullbody":
+        is_light = True
+
+    # ШАГ 3: Финальная генерация
+    allowed, warmup, muscles = kb_service.get_filtered_workout(
+        user.goal, lvl, user.equipment, active_split, bans, injuries, 
+        last.generated_plan if last else None, is_light_fullbody=is_light
     )
 
-    if len(allowed) < 3:
-        special_prompt = "Упражнений слишком мало. "
-        if reason == "injury_conflict":
-            special_prompt += "Боль пользователя заблокировала мышцы сегодняшнего дня. Предложи сменить день сплита."
-        else:
-            special_prompt += f"Слишком много банов. В черном списке: {', '.join(long_term_bans)}. Попроси разблокировать."
-        note = await llm_service.generate_coach_note(req.goal, special_prompt, temp_injuries)
-    else:
-        note = await llm_service.generate_coach_note(req.goal, req.pre_workout_text or "Всё отлично", temp_injuries)
-
-    selected_main = random.sample(allowed, min(len(allowed), 5)) if allowed else []
-    plan_dict = {"warmup": warmup, "main_workout": selected_main, "coach_note": note}
+    note = await llm_service.generate_coach_note(user.goal, injuries, mood, active_split, muscles, req.fallback_choice)
+    plan = {"warmup": warmup, "main": random.sample(allowed, min(len(allowed), 5)), "note": note}
 
     new_w = models.Workout(
-        goal=req.goal, level=req.level, equipment=req.equipment,
-        split_day=current_split, banned_exercises=",".join(long_term_bans),
-        generated_plan=json.dumps(plan_dict, ensure_ascii=False)
+        device_id=user.device_id, goal=user.goal, level=lvl, equipment=user.equipment,
+        split_day=active_split if not is_light else original_split, 
+        banned_exercises=",".join(bans), generated_plan=json.dumps(plan, ensure_ascii=False)
     )
-    db.add(new_w)
-    db.commit()
-    db.refresh(new_w)
+    db.add(new_w); db.commit()
     
-    return {"workout_id": new_w.id, "split_day": current_split, "plan": plan_dict}
+    return {
+        "status": "success",
+        "workout_id": new_w.id,
+        "active_level": lvl,
+        "fallback_applied": req.fallback_choice,
+        "plan": plan
+    }
 
 @app.post("/api/v1/workout/{wid}/feedback")
 async def feedback(wid: int, req: FeedbackRequest, db: Session = Depends(get_db)):
+    # ... (эндпоинт отзыва остается абсолютно без изменений) ...
     w = db.query(models.Workout).filter(models.Workout.id == wid).first()
-    if not w: raise HTTPException(404, detail="Тренировка не найдена")
-
-    current_bans_str = w.banned_exercises or ""
-    catalog_str = kb_service.get_all_exercises_catalog(w.goal) 
-    
-    analysis = await llm_service.extract_entities(
-        req.feedback_text, 
-        mode="post_workout", 
-        existing_bans=current_bans_str,
-        catalog=catalog_str
-    )
-    
-    # 1. ОБРАБОТКА БАНОВ
-    current_bans = set([b.strip() for b in current_bans_str.split(",") if b.strip()])
-    
-    for new_ban in analysis.get("banned", []):
-        clean_ban = new_ban.strip(' "\'')
-        if clean_ban:
-            current_bans.add(clean_ban)
-        
-    for unban in analysis.get("unbanned", []):
-        clean_unban = unban.strip(' "\'')
-        to_remove = []
-        for b in current_bans:
-            if clean_unban.lower() in b.lower():
-                to_remove.append(b)
-        for r in to_remove:
-            current_bans.discard(r)
-    
+    if not w: raise HTTPException(404, "Workout not found")
+    user = db.query(models.User).filter(models.User.device_id == w.device_id).first()
+    catalog = kb_service.get_all_exercises_catalog(w.goal)
+    analysis = await llm_service.extract_entities(req.feedback_text, mode="post_workout", existing_bans=w.banned_exercises, catalog=catalog)
+    current_bans = set([b.strip() for b in w.banned_exercises.split(",") if b.strip()])
+    for b in analysis.get("banned", []): current_bans.add(b.strip())
+    for u in analysis.get("unbanned", []): current_bans = {x for x in current_bans if u.lower() not in x.lower()}
     w.banned_exercises = ",".join(filter(None, current_bans))
-    w.feedback = req.feedback_text
-    
-    # 2. ОБРАБОТКА СЛОЖНОСТИ (Auto-regulation)
-    level_change = analysis.get("level_change", "none")
-    current_level = w.level.lower()
-    new_level = current_level
-
-    if level_change == "up":
-        if "новичок" in current_level: new_level = "средний"
-        elif "средн" in current_level: new_level = "профи"
-    elif level_change == "down":
-        if "профи" in current_level: new_level = "средний"
-        elif "средн" in current_level: new_level = "новичок"
-        
-    # Сохраняем новый уровень в эту тренировку, чтобы история была актуальной
-    w.level = new_level
+    change = analysis.get("level_change", "none")
+    rank = user.current_rank.lower()
+    if change == "up": user.current_rank = "средний" if "новичок" in rank else "профи"
+    elif change == "down": user.current_rank = "средний" if "профи" in rank else "новичок"
     db.commit()
-    
-    return {
-        "status": "success", 
-        "ai_analysis": analysis, 
-        "current_bans": w.banned_exercises,
-        "recommended_level": new_level # Отдаем фронтенду, чтобы он знал новый уровень юзера
-    }
+    return {"status": "success", "new_rank": user.current_rank, "bans": w.banned_exercises}

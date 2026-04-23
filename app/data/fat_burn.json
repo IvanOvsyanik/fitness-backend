@@ -1,18 +1,16 @@
 [
-  {"id": "f1", "name": "Прыжки Джека (Jumping Jacks)", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Кардио, Икры", "split_day": 0},
-  {"id": "f2", "name": "Бег на месте с высоким подниманием колен", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Кардио, Ноги", "split_day": 0},
-  {"id": "f3", "name": "Скалолаз (Mountain Climbers)", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Пресс, Кардио", "split_day": 0},
-  {"id": "f4", "name": "Берпи", "equipment": "свой вес", "min_level": "средний", "muscle_group": "Все тело, Кардио", "split_day": 0},
-  {"id": "f5", "name": "Приседания с выпрыгиванием", "equipment": "свой вес", "min_level": "средний", "muscle_group": "Ноги, Кардио", "split_day": 0},
-  {"id": "f6", "name": "Конькобежец (прыжки из стороны в сторону)", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Ноги, Кардио", "split_day": 0},
-  
-  {"id": "f7", "name": "Махи гирей (или одной гантелей)", "equipment": "гантели и турник", "min_level": "средний", "muscle_group": "Спина, Ягодицы", "split_day": 0},
-  {"id": "f8", "name": "Удары гантелями перед собой (бой с тенью)", "equipment": "гантели и турник", "min_level": "новичок", "muscle_group": "Плечи, Кардио", "split_day": 0},
-  {"id": "f9", "name": "Трастеры с гантелями", "equipment": "гантели и турник", "min_level": "средний", "muscle_group": "Ноги, Плечи", "split_day": 0},
-  {"id": "f10", "name": "Взятие гантелей на грудь", "equipment": "гантели и турник", "min_level": "профи", "muscle_group": "Все тело", "split_day": 0},
-  
-  {"id": "f11", "name": "Беговая дорожка (интервалы)", "equipment": "спортзал", "min_level": "новичок", "muscle_group": "Кардио", "split_day": 0},
-  {"id": "f12", "name": "Эллиптический тренажер", "equipment": "спортзал", "min_level": "новичок", "muscle_group": "Кардио", "split_day": 0},
-  {"id": "f13", "name": "Гребной тренажер", "equipment": "спортзал", "min_level": "средний", "muscle_group": "Спина, Кардио", "split_day": 0},
-  {"id": "f14", "name": "Велотренажер", "equipment": "спортзал", "min_level": "новичок", "muscle_group": "Кардио", "split_day": 0}
+  {"id": "f1", "name": "Прыжки Джека (Jumping Jacks)", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Кардио, Икры", "split_day": 0, "contraindications": ["колено", "голеностоп"]},
+  {"id": "f2", "name": "Бег на месте с высоким подниманием колен", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Кардио, Ноги", "split_day": 0, "contraindications": ["колено", "голеностоп"]},
+  {"id": "f3", "name": "Скалолаз (Mountain Climbers)", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Пресс, Кардио", "split_day": 0, "contraindications": ["колено", "кисть", "плечо"]},
+  {"id": "f4", "name": "Берпи", "equipment": "свой вес", "min_level": "средний", "muscle_group": "Все тело, Кардио", "split_day": 0, "contraindications": ["колено", "спина", "поясница", "кисть"]},
+  {"id": "f5", "name": "Приседания с выпрыгиванием", "equipment": "свой вес", "min_level": "средний", "muscle_group": "Ноги, Кардио", "split_day": 0, "contraindications": ["колено", "поясница", "голеностоп"]},
+  {"id": "f6", "name": "Конькобежец (прыжки из стороны в сторону)", "equipment": "свой вес", "min_level": "новичок", "muscle_group": "Ноги, Кардио", "split_day": 0, "contraindications": ["колено", "голеностоп"]},
+  {"id": "f7", "name": "Махи гирей (или одной гантелей)", "equipment": "гантели и турник", "min_level": "средний", "muscle_group": "Спина, Ягодицы", "split_day": 0, "contraindications": ["поясница", "спина"]},
+  {"id": "f8", "name": "Удары гантелями перед собой (бой с тенью)", "equipment": "гантели и турник", "min_level": "новичок", "muscle_group": "Плечи, Кардио", "split_day": 0, "contraindications": ["плечо", "локоть"]},
+  {"id": "f9", "name": "Трастеры с гантелями", "equipment": "гантели и турник", "min_level": "средний", "muscle_group": "Ноги, Плечи", "split_day": 0, "contraindications": ["колено", "плечо", "поясница"]},
+  {"id": "f10", "name": "Взятие гантелей на грудь", "equipment": "гантели и турник", "min_level": "профи", "muscle_group": "Все тело", "split_day": 0, "contraindications": ["поясница", "плечо", "колено", "спина"]},
+  {"id": "f11", "name": "Беговая дорожка (интервалы)", "equipment": "спортзал", "min_level": "новичок", "muscle_group": "Кардио", "split_day": 0, "contraindications": ["колено", "голеностоп"]},
+  {"id": "f12", "name": "Эллиптический тренажер", "equipment": "спортзал", "min_level": "новичок", "muscle_group": "Кардио", "split_day": 0, "contraindications": []},
+  {"id": "f13", "name": "Гребной тренажер", "equipment": "спортзал", "min_level": "средний", "muscle_group": "Спина, Кардио", "split_day": 0, "contraindications": ["поясница", "спина"]},
+  {"id": "f14", "name": "Велотренажер", "equipment": "спортзал", "min_level": "новичок", "muscle_group": "Кардио", "split_day": 0, "contraindications": ["колено"]}
 ]
