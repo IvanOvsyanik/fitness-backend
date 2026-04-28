@@ -1,0 +1,6 @@
+[
+  {"id": "c1", "name": "Поза ребенка (отдых)", "muscle_group": ["широчайшие", "поясница"], "contraindications": ["колено"], "reps_range": null, "sets": 1, "work_sec_per_set": 60, "rest_sec_between_sets": 0, "equipment": "свой вес", "min_level": "новичок", "split_day": 0, "anim_id": "cool_child_pose"},
+  {"id": "c2", "name": "Растяжка грудных у стены", "muscle_group": ["грудь", "плечи"], "contraindications": ["плечо"], "reps_range": null, "sets": 1, "work_sec_per_set": 45, "rest_sec_between_sets": 10, "equipment": "свой вес", "min_level": "новичок", "split_day": 0, "anim_id": "cool_chest_wall"},
+  {"id": "c3", "name": "Наклон к прямым ногам сидя", "muscle_group": ["бицепс бедра", "икры", "поясница"], "contraindications": ["поясница"], "reps_range": null, "sets": 1, "work_sec_per_set": 60, "rest_sec_between_sets": 10, "equipment": "свой вес", "min_level": "новичок", "split_day": 0, "anim_id": "cool_hamstring"},
+  {"id": "c4", "name": "Растяжка квадрицепса стоя", "muscle_group": ["квадрицепс"], "contraindications": ["колено"], "reps_range": null, "sets": 1, "work_sec_per_set": 45, "rest_sec_between_sets": 10, "equipment": "свой вес", "min_level": "новичок", "split_day": 0, "anim_id": "cool_quad"}
+]

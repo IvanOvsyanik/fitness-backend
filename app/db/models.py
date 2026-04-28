@@ -13,8 +13,8 @@ class User(Base):
     experience_level = Column(String)
     equipment = Column(String)
     
-    base_rank = Column(String)     # Ранг, присвоенный ИИ при регистрации
-    current_rank = Column(String)  # Текущий ранг пользователя (меняется после отзывов)
+    base_rank = Column(String)     
+    current_rank = Column(String)  
     
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
@@ -27,7 +27,9 @@ class Workout(Base):
     goal = Column(String)
     level = Column(String)
     equipment = Column(String)
-    generated_plan = Column(Text)
+    target_time_minutes = Column(Integer, default=40) # Новое поле времени
+    
+    generated_plan = Column(Text) # Здесь будет храниться собранный ИИ JSON
     feedback = Column(Text, nullable=True)
     
     split_day = Column(Integer, default=1)

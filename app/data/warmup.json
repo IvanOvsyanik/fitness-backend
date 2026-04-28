@@ -1,0 +1,7 @@
+[
+  {"id": "w1", "name": "Вращение головой и шеей", "muscle_group": ["шея"], "contraindications": ["шея"], "reps_range": null, "sets": 1, "work_sec_per_set": 45, "rest_sec_between_sets": 5, "equipment": "свой вес", "min_level": "новичок", "split_day": 0, "anim_id": "warmup_neck"},
+  {"id": "w2", "name": "Круговые вращения плечами", "muscle_group": ["плечи", "трапеции"], "contraindications": ["плечо"], "reps_range": null, "sets": 1, "work_sec_per_set": 45, "rest_sec_between_sets": 5, "equipment": "свой вес", "min_level": "новичок", "split_day": 0, "anim_id": "warmup_shoulders"},
+  {"id": "w3", "name": "Вращения тазом", "muscle_group": ["кор", "поясница"], "contraindications": ["поясница", "таз"], "reps_range": null, "sets": 1, "work_sec_per_set": 45, "rest_sec_between_sets": 5, "equipment": "свой вес", "min_level": "новичок", "split_day": 0, "anim_id": "warmup_pelvis"},
+  {"id": "w4", "name": "Вращения в коленных суставах", "muscle_group": ["квадрицепс"], "contraindications": ["колено"], "reps_range": null, "sets": 1, "work_sec_per_set": 45, "rest_sec_between_sets": 5, "equipment": "свой вес", "min_level": "новичок", "split_day": 0, "anim_id": "warmup_knees"},
+  {"id": "w5", "name": "Шаги на месте с подъемом колен", "muscle_group": ["квадрицепс", "кор"], "contraindications": ["колено", "таз", "голеностоп"], "reps_range": null, "sets": 1, "work_sec_per_set": 60, "rest_sec_between_sets": 10, "equipment": "свой вес", "min_level": "новичок", "split_day": 0, "anim_id": "warmup_march"}
+]
