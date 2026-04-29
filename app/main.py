@@ -6,7 +6,7 @@ import json
 
 from app.db.database import engine, Base, get_db
 from app.db import models
-from app.services import llm_service, kb_service
+from app.services import llm_service, kb_service, progress_service
 
 Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Fitness Generative AI")
@@ -146,17 +146,51 @@ async def feedback(wid: int, req: FeedbackRequest, db: Session = Depends(get_db)
     if not w: raise HTTPException(404, "Workout not found")
     user = db.query(models.User).filter(models.User.device_id == w.device_id).first()
     
-    catalog = kb_service.get_all_exercises_catalog(w.goal)
-    analysis = await llm_service.extract_entities(req.feedback_text, mode="post_workout", existing_bans=w.banned_exercises, catalog=catalog)
+    analysis = await llm_service.extract_entities(req.feedback_text, mode="post_workout", existing_bans=w.banned_exercises)
     
-    current_bans = set([b.strip() for b in w.banned_exercises.split(",") if b.strip()])
-    for b in analysis.get("banned", []): current_bans.add(b.strip())
-    for u in analysis.get("unbanned", []): current_bans = {x for x in current_bans if u.lower() not in x.lower()}
+    current_bans = set([b.strip().lower() for b in w.banned_exercises.split(",") if b.strip()])
+    
+    for b in analysis.get("banned_exercises", []): current_bans.add(b.strip().lower())
+    for b in analysis.get("banned_muscles", []): current_bans.add(b.strip().lower())
+    for u in analysis.get("unbanned", []): 
+        current_bans = {x for x in current_bans if u.lower() not in x}
+        
     w.banned_exercises = ",".join(filter(None, current_bans))
     
     change = analysis.get("level_change", "none")
     rank = user.current_rank.lower()
-    if change == "up": user.current_rank = "средний" if "новичок" in rank else "профи"
-    elif change == "down": user.current_rank = "средний" if "профи" in rank else "новичок"
+    if change == "up": 
+        user.current_rank = "средний" if "новичок" in rank else "профи"
+    elif change == "down": 
+        user.current_rank = "средний" if "профи" in rank else "новичок"
+        
     db.commit()
-    return {"status": "success", "new_rank": user.current_rank, "bans": w.banned_exercises}
+
+    # НОВОЕ: Проверяем и выдаем ачивки после того, как логи успешно сохранены
+    new_achievements = progress_service.check_and_unlock_achievements(db, user.device_id)
+    
+    return {
+        "status": "success", 
+        "new_rank": user.current_rank, 
+        "bans": w.banned_exercises,
+        "newly_unlocked_achievements": new_achievements
+    }
+
+@app.get("/api/v1/users/{device_id}/stats")
+async def get_user_profile_stats(device_id: str, db: Session = Depends(get_db)):
+    """Эндпоинт для экрана профиля. Отдает всю статистику и медали."""
+    user = db.query(models.User).filter(models.User.device_id == device_id).first()
+    if not user:
+        raise HTTPException(404, "User not found")
+        
+    stats = progress_service.get_user_stats(db, device_id)
+    
+    return {
+        "status": "success",
+        "user_info": {
+            "goal": user.goal,
+            "rank": user.current_rank,
+            "equipment": user.equipment
+        },
+        "stats": stats
+    }

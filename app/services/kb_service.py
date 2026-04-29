@@ -49,10 +49,17 @@ def get_filtered_catalogs(goal: str, level: str, equipment: str, split_day: int,
         allowed = []
         for ex in ex_list:
             name_lc = ex['name'].lower()
+            muscles_lc = [m.lower() for m in ex.get("muscle_group", [])]
             contraindications = [c.lower() for c in ex.get('contraindications', [])]
             
-            # 1. Постоянные баны из БД
-            if any(b.lower() in name_lc for b in bans if b): continue
+            # 1. Постоянные баны из БД (Проверяем и название, и мышцы)
+            is_banned = False
+            for b in bans:
+                b = b.lower()
+                if b in name_lc or any(b in m for m in muscles_lc):
+                    is_banned = True
+                    break
+            if is_banned: continue
                 
             # 2. Острые травмы (injuries) - Жесткий БАН
             if any(any(inj.lower() in c for c in contraindications) for inj in injuries): 

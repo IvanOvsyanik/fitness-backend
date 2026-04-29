@@ -11,8 +11,12 @@ MODEL_NAME = "llama-3.3-70b-versatile"
 
 async def analyze_onboarding(weight: int, height: int, age: int, experience: str, equipment: str):
     system_prompt = f"""Ты — ИИ-врач. Проанализируй: Вес: {weight}кг, Рост: {height}см, Возраст: {age}, Опыт: {experience}, Инвентарь: {equipment}.
-    1. ИМТ > 30 — СТРОГО "новичок". 2. Опыт давно — СТРОГО "новичок".
-    Верни СТРОГИЙ JSON: {{"initial_rank": "новичок", "reason": "вывод"}}"""
+    ПРАВИЛА:
+    1. ИМТ > 30 — СТРОГО "новичок". 
+    2. Опыт давно или нет силовых — СТРОГО "новичок".
+    3. Регулярные тренировки и ИМТ в норме — СТРОГО "профи" или "средний".
+    4. ЗАПРЕЩЕНО делать негативные выводы из-за высокого/низкого роста или возраста. Строго опирайся только на ИМТ и опыт!
+    Верни СТРОГИЙ JSON: {{"initial_rank": "выбранный_ранг", "reason": "вывод"}}"""
 
     try:
         response = await client.chat.completions.create(model=MODEL_NAME, messages=[{"role": "system", "content": system_prompt}], response_format={"type": "json_object"}, temperature=0.1)
@@ -21,9 +25,14 @@ async def analyze_onboarding(weight: int, height: int, age: int, experience: str
         return {"initial_rank": "новичок", "reason": "Ошибка анализа."}
 
 async def extract_entities(text: str, mode: str = "pre_workout", existing_bans: str = "", catalog: str = "", valid_injuries: list = None):
+    # Защита от пустых сообщений
     if not text or len(text) < 3: 
-        return {"banned": [], "unbanned": [], "injuries": [], "doms": [], "level_change": "none", "mood_boost": "none"}
+        if mode == "pre_workout":
+            return {"injuries": [], "doms": [], "mood_boost": "none"}
+        else:
+            return {"banned_exercises": [], "banned_muscles": [], "unbanned": [], "level_change": "none"}
 
+    # ВЕТКА 1: ПЕРЕД ТРЕНИРОВКОЙ (Травмы и настроение)
     if mode == "pre_workout":
         tags_str = ", ".join(valid_injuries) if valid_injuries else "шея, плечо, локоть, кисть, поясница, таз, колено, голеностоп"
         
@@ -31,16 +40,36 @@ async def extract_entities(text: str, mode: str = "pre_workout", existing_bans: 
         ЗАДАЧА 1: ТРАВМЫ СУСТАВОВ (injuries). Острые боли, хрусты суставов. Используй ТОЛЬКО теги: [{tags_str}]. Если болит нога -> ["колено", "голеностоп"].
         ЗАДАЧА 2: КРЕПАТУРА (doms). Усталость или "забитость" мышц после прошлых тренировок (например: "грудь", "бицепс", "ягодицы").
         ЗАДАЧА 3: НАСТРОЕНИЕ (mood_boost): "up", "down", "none".
-        
         Верни СТРОГИЙ JSON: {{"injuries": ["тег"], "doms": ["мышца"], "mood_boost": "none"}}"""
-    else:
-        system_prompt = f"""Анализ отзыва. Бан-лист: {existing_bans}. Справочник: {catalog}. Верни JSON: {{"banned": [], "unbanned": [], "level_change": "none"}}"""
+        
+        try:
+            response = await client.chat.completions.create(model=MODEL_NAME, messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text}], response_format={"type": "json_object"}, temperature=0.1)
+            return json.loads(response.choices[0].message.content)
+        except:
+            return {"injuries": [], "doms": [], "mood_boost": "none"}
 
-    try:
-        response = await client.chat.completions.create(model=MODEL_NAME, messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text}], response_format={"type": "json_object"}, temperature=0.1)
-        return json.loads(response.choices[0].message.content)
-    except:
-        return {"banned": [], "unbanned": [], "injuries": [], "doms": [], "level_change": "none", "mood_boost": "none"}
+    # ВЕТКА 2: ПОСЛЕ ТРЕНИРОВКИ (Отзывы, баны и сложность)
+    else:
+        system_prompt = f"""Ты — аналитик фитнес-отзывов. Проанализируй отзыв после тренировки.
+        Текущий список банов: {existing_bans}.
+        
+        ЗАДАЧА 1: БАНЫ.
+        - Если юзер просит убрать конкретное упражнение (например, "выпады", "отжимания") — добавь в "banned_exercises".
+        - Если юзер просит больше не качать целую группу мышц (например: "грудь", "спина", "ноги") — добавь в "banned_muscles".
+        - Если просит вернуть упражнение или мышцу из бана — добавь в "unbanned".
+        
+        ЗАДАЧА 2: СЛОЖНОСТЬ (level_change).
+        - "слишком тяжело", "еле выжил", "устал", "сбавь темп" -> "down".
+        - "слишком легко", "не вспотел", "хочу посложнее", "скучно" -> "up".
+        - Нормально -> "none".
+        
+        Верни СТРОГИЙ JSON: {{"banned_exercises": [], "banned_muscles": [], "unbanned": [], "level_change": "none"}}"""
+
+        try:
+            response = await client.chat.completions.create(model=MODEL_NAME, messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text}], response_format={"type": "json_object"}, temperature=0.1)
+            return json.loads(response.choices[0].message.content)
+        except:
+            return {"banned_exercises": [], "banned_muscles": [], "unbanned": [], "level_change": "none"}
 
 async def generate_workout_logic(goal: str, target_time_minutes: int, catalog_for_llm: dict, doms: list):
     """

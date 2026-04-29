@@ -2,6 +2,18 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 import datetime
 from app.db.database import Base
 
+class UserAchievement(Base):
+    __tablename__ = "user_achievements"
+
+    id = Column(Integer, primary_key=True, index=True)
+    device_id = Column(String, ForeignKey("users.device_id"), index=True)
+    
+    achievement_id = Column(String) # Уникальный ID ачивки (например, "first_blood")
+    title = Column(String)          # Красивое название ("Первый шаг")
+    description = Column(String)    # Описание ("Завершена первая тренировка")
+    
+    unlocked_at = Column(DateTime, default=datetime.datetime.utcnow)
+    
 class User(Base):
     __tablename__ = "users"
     
