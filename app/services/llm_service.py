@@ -6,7 +6,6 @@ client = AsyncOpenAI(
     api_key=settings.GROQ_API_KEY,
     base_url="https://api.groq.com/openai/v1",
 )
-# Самая мощная модель, умная как GPT-4
 MODEL_NAME = "llama-3.3-70b-versatile"
 
 async def analyze_onboarding(weight: int, height: int, age: int, experience: str, equipment: str):
@@ -25,14 +24,12 @@ async def analyze_onboarding(weight: int, height: int, age: int, experience: str
         return {"initial_rank": "новичок", "reason": "Ошибка анализа."}
 
 async def extract_entities(text: str, mode: str = "pre_workout", existing_bans: str = "", catalog: str = "", valid_injuries: list = None):
-    # Защита от пустых сообщений
     if not text or len(text) < 3: 
         if mode == "pre_workout":
             return {"injuries": [], "doms": [], "mood_boost": "none"}
         else:
             return {"banned_exercises": [], "banned_muscles": [], "unbanned": [], "level_change": "none"}
 
-    # ВЕТКА 1: ПЕРЕД ТРЕНИРОВКОЙ (Травмы и настроение)
     if mode == "pre_workout":
         tags_str = ", ".join(valid_injuries) if valid_injuries else "шея, плечо, локоть, кисть, поясница, таз, колено, голеностоп"
         
@@ -48,15 +45,17 @@ async def extract_entities(text: str, mode: str = "pre_workout", existing_bans: 
         except:
             return {"injuries": [], "doms": [], "mood_boost": "none"}
 
-    # ВЕТКА 2: ПОСЛЕ ТРЕНИРОВКИ (Отзывы, баны и сложность)
     else:
         system_prompt = f"""Ты — аналитик фитнес-отзывов. Проанализируй отзыв после тренировки.
         Текущий список банов: {existing_bans}.
         
-        ЗАДАЧА 1: БАНЫ.
-        - Если юзер просит убрать конкретное упражнение (например, "выпады", "отжимания") — добавь в "banned_exercises".
-        - Если юзер просит больше не качать целую группу мышц (например: "грудь", "спина", "ноги") — добавь в "banned_muscles".
-        - Если просит вернуть упражнение или мышцу из бана — добавь в "unbanned".
+        СПИСОК ВСЕХ УПРАЖНЕНИЙ В БАЗЕ:
+        {catalog}
+        
+        ЗАДАЧА 1: БАНЫ (БУДЬ ВНИМАТЕЛЕН).
+        - Если юзер просит забанить/убрать упражнение (например, "убери жим", "заблокируй выпады"), ты ДОЛЖЕН найти наиболее подходящее ТОЧНОЕ название из СПИСКА ВЫШЕ и вернуть его. Никакой отсебятины!
+        - Если просит больше не качать целую группу мышц — добавь в "banned_muscles".
+        - Если просит вернуть/разбанить упражнение — найди его ТОЧНОЕ название в списке выше и добавь в "unbanned".
         
         ЗАДАЧА 2: СЛОЖНОСТЬ (level_change).
         - "слишком тяжело", "еле выжил", "устал", "сбавь темп" -> "down".
@@ -67,14 +66,14 @@ async def extract_entities(text: str, mode: str = "pre_workout", existing_bans: 
 
         try:
             response = await client.chat.completions.create(model=MODEL_NAME, messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": text}], response_format={"type": "json_object"}, temperature=0.1)
-            return json.loads(response.choices[0].message.content)
-        except:
+            res = json.loads(response.choices[0].message.content)
+            print(f"=== LLM POST-WORKOUT ANALYSIS ===\n{res}\n=================================")
+            return res
+        except Exception as e:
+            print(f"Ошибка LLM: {e}")
             return {"banned_exercises": [], "banned_muscles": [], "unbanned": [], "level_change": "none"}
 
 async def generate_workout_logic(goal: str, target_time_minutes: int, catalog_for_llm: dict, doms: list):
-    """
-    Нейросеть выступает в роли планировщика. Она получает список разрешенных ID и собирает пазл на X минут.
-    """
     system_prompt = f"""Ты — элитный фитнес-алгоритм (уровня Nike Training Club).
     ЗАДАЧА: Собрать тренировку, которая длится ровно (или максимально близко к) {target_time_minutes} минут.
     
@@ -99,12 +98,11 @@ async def generate_workout_logic(goal: str, target_time_minutes: int, catalog_fo
             model=MODEL_NAME,
             messages=[{"role": "system", "content": system_prompt}],
             response_format={"type": "json_object"},
-            temperature=0.3 # Немного креативности для разнообразия выбора упражнений
+            temperature=0.3
         )
         return json.loads(response.choices[0].message.content)
     except Exception as e:
         print(f"LLM Logic Error: {e}")
-        # Заглушка на случай сбоя API, чтобы приложение не упало
         return {"warmup_ids": [], "main_ids": [], "cooldown_ids": [], "estimated_total_minutes": 0}
 
 async def generate_coach_note(goal: str, injuries: list, doms: list, mood_boost: str, is_fallback: str):
